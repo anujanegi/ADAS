@@ -44,7 +44,7 @@ while(True):
     roi_gray = gray[y:y+h, x:x+w]
     for(ex, ey, ew, eh) in eyes:
         cv2.rectangle(roi_gray, (ex, ey), (ex + ew, ey + eh), (255, 0, 0), 2)
-    cv2.rectangle(gray, (box_config[0], box_config[1]),
+    cv2.rectangle(roi_gray, (box_config[0], box_config[1]),
         (box_config[0]+box_config[2], box_config[1]+box_config[3]),
         (0, 0, 255), 2)
 
