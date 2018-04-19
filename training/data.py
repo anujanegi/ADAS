@@ -7,7 +7,6 @@ import random
 import cv2
 import os
 
-
 def load_data():
     X = [] #data
     Y = [] #label
