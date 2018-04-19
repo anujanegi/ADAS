@@ -3,3 +3,4 @@ opencv-python
 imutils
 numpy
 sklearn
+h5py
