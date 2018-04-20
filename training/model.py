@@ -7,7 +7,7 @@ from keras import backend as K
 
 def def_model(height, width, depth) :
 
-	#LetNet architecture
+	#LeNet architecture
     model = Sequential()
     shape = (height, width, depth)
 
