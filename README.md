@@ -16,9 +16,11 @@ Advanced Driver Assist System
 - Install the dependencies : `pip install -r requirements.txt`.
 
 #### Training the network
-The **train.py** script in /training can be run to train the LeNet neural netwok.
+The **train.py** script in /training can be run to train the LeNet neural network.
+
 `python3 ./train.py`
 
 #### Go live 
 The **run.py** script can be run to get started.
+
 `python3 ./run.py`
