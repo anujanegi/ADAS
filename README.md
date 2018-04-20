@@ -1,5 +1,5 @@
 # ADAS
-Advanced Driver Assist System
+Advanced driver-assistance System
 
 ## Structure of the project
 
@@ -11,9 +11,13 @@ Advanced Driver Assist System
 
 **Python 3** is required.
 
-- Install [Git Large File Storage](https://git-lfs.github.com/), either manually or do `git lfs install` 
-- Clone the repository with submodules: `git lfs clone --recurse-submodules https://github.com/anujanegi/ADAS.git`
-- Install the dependencies : `pip install -r requirements.txt`.
+- Install [Git Large File Storage](https://git-lfs.github.com/), either manually or through a package like `git-lfs`. 
+- Clone the repository with submodules - 
+
+`git lfs clone --recurse-submodules https://github.com/anujanegi/ADAS.git`
+- Install the dependencies -
+
+`pip install -r requirements.txt`
 
 #### Training the network
 The **train.py** script in /training can be run to train the LeNet neural network.
