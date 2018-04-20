@@ -21,7 +21,7 @@ def load_data():
         image = img_to_array(image)
         X.append(image)
         label = image_path.split(os.path.sep)[-2]
-        if label == "closedRightEyes" :
+        if label == "closedEyes" :
             label = 0
         else:
             label = 1
