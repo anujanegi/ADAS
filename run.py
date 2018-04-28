@@ -21,7 +21,10 @@ def getLabel(image):
     image = np.array([[[i,i,i] for i in j] for j in image])
 
     # pre-process the image for classification
-    image = cv2.resize(image, (24, 24))
+    try:
+        image = cv2.resize(image, (24, 24))
+    except:
+        return "Closed"
     image = image.astype("float") / 255.0
     image = img_to_array(image)
     image = np.expand_dims(image, axis=0)
