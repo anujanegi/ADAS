@@ -18,6 +18,7 @@ class Extractor:
         # default box config x,y,w,h
         self.box_config = [0,0,0,0]
         self.best_eyes = None
+        self.selectedFace = [0,0,0,0]
 
     # returns face, eyes and config
     def getFacialData(self, gray_image):
@@ -46,9 +47,10 @@ class Extractor:
         [best_eyes, cropped] = getBestEyes(selectedFace, list(eyes))
         if(cropped[2]/cropped[3]<2):
             return [[], [], []]
-        if(compareRectangles(cropped, self.box_config)>0):
-            box_config = cropped
-        else:
-            best_eyes = self.best_eyes
+        if(compareRectangles(self.selectedFace, selectedFace)<1 and
+            compareRectangles(cropped, self.box_config)<(2/3)):
+                best_eyes = self.best_eyes
+        self.box_config = cropped
         self.best_eyes = best_eyes
-        return [selectedFace, self.best_eyes, box_config]
+        self.selectedFace = selectedFace
+        return [selectedFace, self.best_eyes, self.box_config]
