@@ -4,3 +4,4 @@ imutils
 numpy
 sklearn
 h5py
+tensorflow
