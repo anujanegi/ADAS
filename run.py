@@ -6,12 +6,17 @@ from keras.preprocessing.image import img_to_array
 from keras.models import load_model
 import numpy as np
 from extraction.extractor import Extractor
+from detection.yawn import YawnDetector
+from detection.head_movement import HeadMovement
 import time
 
 LABEL_OPEN = "Open"
 LABEL_CLOSED = "Closed"
 
 extractor = Extractor()
+yawnDetector = YawnDetector()
+headMovement = HeadMovement()
+
 cap = cv2.VideoCapture(0)
 
 # load model
@@ -20,8 +25,6 @@ model_json = json_file.read()
 json_file.close()
 model = model_from_json(model_json)
 model.load_weights("training/model.h5")
-
-openCount = 0;
 
 def getLabel(image):
     image = np.array([[[i,i,i] for i in j] for j in image])
@@ -41,6 +44,8 @@ def getLabel(image):
 
 while(True):
     openCount = 0
+    isHeadMoving = False
+    isYawning = False
     curr_t = time.time()
     while(time.time()-curr_t<1):
         ret, image = cap.read()
@@ -66,6 +71,14 @@ while(True):
         if(getLabel(eye_image1)==LABEL_OPEN or getLabel(eye_image2)==LABEL_OPEN):
             openCount+=1
 
+        # get yawn status
+        if yawnDetector.detectYawn(image):
+            isYawning = True
+
+        # get head status
+        if headMovement.detectMovement(image):
+            isHeadMoving = True
+
         # display
         cv2.imshow('live', gray)
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -75,6 +88,9 @@ while(True):
         print("eyes", LABEL_OPEN)
     else:
         print("eyes", LABEL_CLOSED)
+
+    print("Yawning", isYawning)
+    print("Head movement", isHeadMoving)
 
 cap.release()
 cv2.destroyAllWindows()
