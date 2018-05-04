@@ -1,4 +1,5 @@
 ## Utility file ##
+import math
 
 # compute distance between two vectors
 def distance(v1, v2):
@@ -69,4 +70,7 @@ def compareRectangles(rec1, rec2):
     # rectangle is of the form [x,y,w,h]
     area1 = rec1[2]*rec1[3]
     area2 = rec2[2]*rec2[3]
-    return area1/area2
+    if area2==0:
+        return math.inf
+    else:
+        return area1/area2
