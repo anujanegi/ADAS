@@ -51,7 +51,6 @@ class HeadMovement:
         a,b = self.get_coords(self.p0), self.get_coords(p1)
         self.x_movement += abs(a[0]-b[0])
         self.y_movement += abs(a[1]-b[1])
-        print(self.x_movement, self.y_movement)
 
         if self.y_movement > self.gesture_threshold:
             return True

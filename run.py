@@ -84,7 +84,7 @@ while(True):
         if cv2.waitKey(1) & 0xFF == ord('q'):
             sys.exit()
 
-    if(openCount>3):
+    if(openCount>2):
         print("eyes", LABEL_OPEN)
     else:
         print("eyes", LABEL_CLOSED)
