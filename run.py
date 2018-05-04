@@ -18,6 +18,7 @@ yawnDetector = YawnDetector()
 headMovement = HeadMovement()
 
 cap = cv2.VideoCapture(0)
+font = cv2.FONT_HERSHEY_SIMPLEX
 
 # load model
 json_file = open('training/model.json', 'r')
@@ -25,6 +26,13 @@ model_json = json_file.read()
 json_file.close()
 model = model_from_json(model_json)
 model.load_weights("training/model.h5")
+
+# helper function
+def print_(message, image, y_off):
+    # to log
+    print(message)
+    # to screen
+    cv2.putText(image, message, (50,y_off), font, 0.8, (0, 0, 0))
 
 def getLabel(image):
     image = np.array([[[i,i,i] for i in j] for j in image])
@@ -42,14 +50,23 @@ def getLabel(image):
     label = LABEL_CLOSED if closed > opened else LABEL_OPEN
     return label
 
+openCount = 0
+isHeadMoving = False
+isYawning = False
+
 while(True):
-    openCount = 0
-    isHeadMoving = False
-    isYawning = False
     curr_t = time.time()
     while(time.time()-curr_t<1):
         ret, image = cap.read()
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) # grayscale
+
+        if(openCount>2):
+            print_("eyes: " + LABEL_OPEN, gray, 50)
+        else:
+            print_("eyes: " + LABEL_CLOSED, gray, 50)
+        print_("Yawning: " + str(isYawning), gray, 100)
+        print_("Head movement: " + str(isHeadMoving), gray, 150)
+
         [selectedFace, eyes, box_config] = extractor.getFacialData(gray)
         if(len(selectedFace)==0 or len(eyes)!=2):
             continue
@@ -83,14 +100,10 @@ while(True):
         cv2.imshow('live', gray)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             sys.exit()
-
-    if(openCount>2):
-        print("eyes", LABEL_OPEN)
-    else:
-        print("eyes", LABEL_CLOSED)
-
-    print("Yawning", isYawning)
-    print("Head movement", isHeadMoving)
+            
+    openCount = 0
+    isHeadMoving = False
+    isYawning = False
 
 cap.release()
 cv2.destroyAllWindows()
