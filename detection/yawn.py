@@ -13,7 +13,7 @@ class YawnDetector:
 		self.faceCascade = cv2.CascadeClassifier(faceCascPath)
 
 		# class variables
-		self.ratio = 0 #contour area and ROI ratio
+		self.ratio = 0 # contour area and ROI ratio
 		self.yawnAvgTime = 0
 		self.yawnStartTime = True
 		self.yawnRatioCount = [] # List to hold yawn ratio count and timestamp
