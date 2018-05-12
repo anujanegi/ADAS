@@ -60,13 +60,6 @@ while(True):
         ret, image = cap.read()
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) # grayscale
 
-        if(openCount>2):
-            print_("eyes: " + LABEL_OPEN, gray, 50)
-        else:
-            print_("eyes: " + LABEL_CLOSED, gray, 50)
-        print_("Yawning: " + str(isYawning), gray, 100)
-        print_("Head movement: " + str(isHeadMoving), gray, 150)
-
         [selectedFace, eyes, box_config] = extractor.getFacialData(gray)
         if(len(selectedFace)==0 or len(eyes)!=2):
             continue
@@ -96,11 +89,18 @@ while(True):
         if headMovement.detectMovement(image):
             isHeadMoving = True
 
+        if(openCount>=1):
+            print_("eyes: " + LABEL_OPEN, gray, 50)
+        else:
+            print_("eyes: " + LABEL_CLOSED, gray, 50)
+        print_("Yawning: " + str(isYawning), gray, 100)
+        print_("Head movement: " + str(isHeadMoving), gray, 150)
+
         # display
         cv2.imshow('live', gray)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             sys.exit()
-            
+
     openCount = 0
     isHeadMoving = False
     isYawning = False
