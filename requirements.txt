@@ -1,7 +1,2 @@
-keras
-opencv-python
-imutils
+cv2
 numpy
-sklearn
-h5py
-tensorflow

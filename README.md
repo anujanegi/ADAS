@@ -1,12 +1,12 @@
-# ADAS
-Advanced Driver-assistance System
+# ADAS v2.0
+Advanced Driver-assistance System <br> <br>
+
+This area will be updated soon.
 
 ## Structure of the project
 
-- The **detection** module contains utility to detect yawning and head movements;
 - The **extraction** module contains utility to get the facial features;
-- The **training** module contains neural network definition, dataset, and script to train the neural network;
-- The **tests** module contains tests for the trained model.
+- The **models** folder contains trained models for the project.
 
 ## Setup
 
@@ -19,11 +19,6 @@ Advanced Driver-assistance System
 - Install the dependencies -
 
 `pip install -r requirements.txt`
-
-#### Training the network
-The **train.py** script in /training can be run to train the LeNet neural network.
-
-`python3 ./train.py`
 
 #### Go live
 The **run.py** script can be run to get started.

@@ -1,56 +1,106 @@
 import cv2
 import numpy as np
-import sys
-import time
-from extraction.extraction_utils import *
 
-class Extractor:
 
-    def __init__(self):
-        # cascade path
-        faceCascPath = "extraction/haarcascade_frontalface_default.xml"
-        eyeCascPath = "extraction/haarcascade_eye.xml"
+class ObjectExtractor:
 
-        # create the haar cascades
-        self.faceCascade = cv2.CascadeClassifier(faceCascPath)
-        self.eyeCascade = cv2.CascadeClassifier(eyeCascPath)
+    """
+    object is assumed to be in the same position;
+    for a maximum of MAX_PERSISTENCE_COUNTER frames;
+    """
+    MAX_PERSISTENCE_COUNTER = 10
 
-        # default box config x,y,w,h
-        self.box_config = [0,0,0,0]
-        self.best_eyes = None
-        self.selectedFace = [0,0,0,0]
+    """
+    jitter is removed using moving average;
+    the window is given by MOVING_AVERAGE_WINDOW;
+    """
+    MOVING_AVERAGE_WINDOW = 10
 
-    # returns face, eyes and config
-    def getFacialData(self, gray_image):
-        # detect faces
-        faces = list(self.faceCascade.detectMultiScale(
-            gray_image,
-            scaleFactor=1.1,
-            minNeighbors=5,
-            minSize=(30, 30),
-        ))
-        # select the largest face - most probable
-        try:
-            faces.sort(reverse=True, key=lambda face: face[2]*face[3])
-            selectedFace = faces[0]
-        except:
-            # no face found
-            return [[], [], []]
-        x, y, w, h = selectedFace
-        roi_gray = gray_image[y:y+h, x:x+w]
-        # detect eyes
-        eyes = list(self.eyeCascade.detectMultiScale(
-    	   roi_gray,
-           scaleFactor=1.1,
-	       minSize=(10, 10),
-        ))
-        [best_eyes, cropped] = getBestEyes(selectedFace, list(eyes))
-        if(cropped[2]/cropped[3]<2):
-            return [[], [], []]
-        if(compareRectangles(self.selectedFace, selectedFace)<1 and
-            compareRectangles(cropped, self.box_config)<(2/3)):
-                best_eyes = self.best_eyes
-        self.box_config = cropped
-        self.best_eyes = best_eyes
-        self.selectedFace = selectedFace
-        return [selectedFace, self.best_eyes, self.box_config]
+    """
+    minimum area deviation to update the frame
+    """
+    MIN_AREA_CHANGE = 2500
+    """
+    maximum permissible area deviation allowed for updating the frame
+    """
+    MAX_AREA_CHANGE = 5000
+
+    """
+    maximum permissible distance deviation allowed for updating the frame
+    """
+    MAX_DISTANCE_CHANGE = 400
+
+    """ cascade locations """
+    FACE_CASCADE_PATH = "models/haarcascade_frontalface_default.xml"
+    EYE_CASCADE_PATH = "models/haarcascade_eye.xml"
+
+    @staticmethod
+    def max_size_selector(items):
+        """
+        returns largest item (area wise)
+        :param items: list of items
+        :return: largest item
+        """
+        items.sort(reverse=True, key=lambda x: x[2] * x[3])
+        return items[0]
+
+    def __init__(self, classifier_path, object_selector, scale_factor=1.1, min_size=(50, 50), verbose=False):
+        """
+        initialize an object-extractor
+        :param classifier_path: path of classifier file
+        :param object_selector: function for selecting best object from a list of objects
+        :param scale_factor: scale factor while finding objects
+        :param min_size: minimum size of objects
+        :param verbose: log data?
+        """
+        self.moving_average_window = []
+        self.classifier = cv2.CascadeClassifier(classifier_path)
+        self.object_selector = object_selector
+        self.scale_factor = scale_factor
+        self.min_size = min_size
+        self.persistence_counter = 0
+        self.curr_object = None
+        self.verbose = verbose
+
+    def detect_object(self, frame):
+        """
+        detect the object in a frame
+        :param frame: object will be searched in this
+        :return: object coordinates in frame
+        """
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        objects = list(self.classifier.detectMultiScale(
+            gray,
+            scaleFactor=self.scale_factor,
+            minSize=self.min_size))
+
+        """ if any object is found """
+        if objects and len(objects) > 0:
+            selected_object = self.object_selector(objects)
+            self.moving_average_window.append(selected_object)
+            """ if moving average window is full """
+            if len(self.moving_average_window) > self.MOVING_AVERAGE_WINDOW:
+                self.moving_average_window.pop(0)
+                average = np.mean(self.moving_average_window, axis=0)
+                area_difference = abs(np.prod(average[2:]) - np.prod(selected_object[2:]))
+                euclidean_distance = np.linalg.norm(average-selected_object)
+                if self.verbose:
+                    print("average", average)
+                    print("area_wise", area_difference)
+                    print("euclidean", euclidean_distance)
+                    print()
+                """ check thresholds """
+                if self.MIN_AREA_CHANGE < area_difference < self.MAX_AREA_CHANGE and \
+                        euclidean_distance < self.MAX_DISTANCE_CHANGE:
+                    self.curr_object = selected_object
+            """ reset the counter """
+            self.persistence_counter = 0
+        else:
+            if self.persistence_counter < self.MAX_PERSISTENCE_COUNTER:
+                """ show for some more frames """
+                self.persistence_counter += 1
+            else:
+                """ reset """
+                self.curr_object = None
+                self.persistence_counter = 0
+        return self.curr_object
