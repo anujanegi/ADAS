@@ -8,6 +8,6 @@ model = fit_model(compile_model(def_model(24, 24, 3)), trainX, trainY, testX, te
 evaluate(model, trainX, trainY)
 
 model_json = model.to_json()
-with open("model.json", "w") as json_file:
+with open("..\models\model.json", "w") as json_file:
     json_file.write(model_json)
-model.save_weights("model.h5")
+model.save_weights("..\models\model.h5")
